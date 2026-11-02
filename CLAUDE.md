@@ -8,3 +8,4 @@ The skills live in `skills/` and are linked into `.claude/skills/`, so `/full-re
 - If transcription fails with a connection error, `api.groq.com` is not allowed in the cloud environment, or `GROQ_API_KEY` is missing. Tell the user to add both in the environment settings (see the README), and do not commit anything to work around it.
 - Never commit rendered videos, transcripts or the user's media.
 - When the user wants their whole video edited (not one short moment), use `/full-reel`.
+- When the user sends audio (no face video) and wants a reel, use `/audio-reel` with every picture, clip and logo they sent.
