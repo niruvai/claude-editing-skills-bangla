@@ -8,8 +8,23 @@ say() { printf '\033[1m%s\033[0m\n' "$*"; }
 command -v ffmpeg >/dev/null || { echo "ffmpeg is missing. Mac: brew install ffmpeg"; exit 1; }
 ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libvpx-vp9 || echo "warning: this ffmpeg has no libvpx-vp9, so cutouts (behind-the-person, explainer) will fail"
 command -v npx >/dev/null || { echo "Node.js is missing (HyperFrames renders with it). Mac: brew install node"; exit 1; }
-PY=$(command -v python3) || { echo "python3 is missing"; exit 1; }
-"$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' || { echo "python 3.9+ is needed"; exit 1; }
+# onnxruntime (the cutout) ships wheels for Python 3.10-3.13 only, so prefer one of those over a newer python3
+PY=""
+for c in python3.12 python3.13 python3.11 python3.10 python3; do
+  p=$(command -v "$c" 2>/dev/null) || continue
+  if "$p" -c 'import sys; sys.exit(0 if (3, 10) <= sys.version_info[:2] <= (3, 13) else 1)'; then PY="$p"; break; fi
+done
+if [ -z "$PY" ]; then
+  echo "Python 3.10-3.13 is needed (your python3 is $(python3 --version 2>&1))."
+  echo "Mac: brew install python@3.12   Ubuntu/WSL: sudo apt install -y python3.12 python3.12-venv"
+  echo "then run ./install.sh again"
+  exit 1
+fi
+# a venv made earlier with an unsupported python is replaced
+if [ -x "$KIT/.venv/bin/python" ] && ! "$KIT/.venv/bin/python" -c 'import sys; sys.exit(0 if (3, 10) <= sys.version_info[:2] <= (3, 13) else 1)'; then
+  say "replacing kit/.venv (it was made with an unsupported python)"
+  rm -rf "$KIT/.venv"
+fi
 
 if [ ! -x "$KIT/.venv/bin/python" ]; then
   say "making kit/.venv"
