@@ -14,6 +14,22 @@ import sys
 import tempfile
 from pathlib import Path
 
+def _load_env():
+    """GROQ_API_KEY / REEL_LANGUAGE from kit/.env or ~/.config/bangla-reels.env when the shell did not set them
+    (chat sessions and other non-interactive shells don't read ~/.zshrc)"""
+    for f in (Path(__file__).resolve().parent / '.env', Path.home() / '.config' / 'bangla-reels.env'):
+        try:
+            for line in f.read_text().splitlines():
+                k, _, v = line.strip().partition('=')
+                if k and not k.startswith('#') and v and not os.environ.get(k.strip()):
+                    os.environ[k.strip()] = v.strip().strip('"\'')
+        except OSError:
+            pass
+
+
+_load_env()
+
+
 MODEL = 'whisper-large-v3'
 CHUNK = 600
 # a messy priming prompt keeps Whisper verbatim (repeats and fillers stay, so the word times stay honest)

@@ -22,6 +22,22 @@ import subprocess
 import sys
 from pathlib import Path
 
+def _load_env():
+    """GROQ_API_KEY / REEL_LANGUAGE from kit/.env or ~/.config/bangla-reels.env when the shell did not set them
+    (chat sessions and other non-interactive shells don't read ~/.zshrc)"""
+    for f in (Path(__file__).resolve().parent / '.env', Path.home() / '.config' / 'bangla-reels.env'):
+        try:
+            for line in f.read_text().splitlines():
+                k, _, v = line.strip().partition('=')
+                if k and not k.startswith('#') and v and not os.environ.get(k.strip()):
+                    os.environ[k.strip()] = v.strip().strip('"\'')
+        except OSError:
+            pass
+
+
+_load_env()
+
+
 KIT = Path(__file__).resolve().parent
 FPS = 30
 W, H = 1080, 1920
