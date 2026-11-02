@@ -6,6 +6,8 @@
 - **বাংলা ট্রান্সক্রিপশন:** `export REEL_LANGUAGE=bn` দিলে Whisper বাংলায় লেখে (ইংরেজিতে অনুবাদ করে না), বাংলা priming prompt সহ।
 - **ক্যাপশন ঠিক করা:** মূল কোডে ক্যাপশন থেকে কার-চিহ্ন ও হসন্ত (ি ু ্) মুছে যেত ("কিন্তু" → "কনতত")। এখন বাংলা শব্দ অক্ষত থাকে, আর দাঁড়ি (।) বাক্যের শেষ হিসেবে ধরা হয়।
 - **বাংলা ফন্ট:** Noto Sans Bengali যোগ করা হয়েছে; সব ১১টা স্টাইলে বাংলা অক্ষর ও যুক্তাক্ষর ঠিকভাবে দেখায়।
+- **নতুন `/full-reel`:** পুরো ভিডিও (যেকোনো দৈর্ঘ্য, বর্গাকার হলেও) একটা সম্পূর্ণ রিল হয় — শুরুতে হুক টাইটেল, পুরোটা জুড়ে বাংলা ক্যাপশন, আর মূল পয়েন্টগুলোতে explainer/split-screen ইত্যাদি ইফেক্ট বসানো। অন্য স্কিলগুলো শুধু ৩–৮ সেকেন্ডের একটা মুহূর্ত বানায়।
+- **Whisper কথা বাদ দিলে** নিজে থেকেই সেই অংশ আবার ট্রান্সক্রাইব হয়।
 - **স্কিল নির্দেশনা:** প্রতিটা স্কিলে Claude-এর জন্য বাংলা নোট — স্ক্রিনের লেখা বাংলায়, ছোট হেডলাইন।
 
 ### দ্রুত শুরু
@@ -18,7 +20,7 @@ git clone https://github.com/niruvai/claude-editing-skills-bangla.git ~/claude-e
 cd ~/claude-editing-skills-bangla && ./install.sh --cutout
 ```
 
-তারপর Claude Code-এ: `/explainer ~/Downloads/clip.mp4`
+তারপর Claude Code-এ: `/full-reel ~/Downloads/clip.mp4` (পুরো ভিডিও) বা `/explainer ~/Downloads/clip.mp4` (একটা মুহূর্ত)
 
 Groq-এর ফ্রি প্ল্যানে দিনে প্রায় ৮ ঘণ্টা অডিও ট্রান্সক্রাইব করা যায়। Whisper বাংলায় মাঝে মাঝে বানান ভুল করে; ক্লিপের পাশের `.transcript.json` এ শব্দ ঠিক করে আবার রেন্ডার করলে সেটাই ব্যবহার হবে।
 
@@ -51,6 +53,7 @@ Eleven skills for Claude Code: six workflows that edit your talking-head clips a
 | `/explainer` | **You at the bottom, visuals on top.** A rounded panel on a light backdrop with your head breaking out over it, and a before-to-after comparison (or a list) explaining the point. |
 | `/split-screen` | **The classic half-and-half.** A step badge, a serif headline and a window showing the step on top, you on the bottom, and captions on the seam. |
 | `/ranking-list` | **A tier list on your chest.** Each item pops up when you name it and drops into its tier (S to F) on the verdict. |
+| `/full-reel` | **The whole clip as one reel** (Bangla edition): a hook title, captions from start to end, and effect segments from the skills above dropped in at the key moments. Square clips are fitted to 9:16 first. |
 | `/storytelling` | **Three image cards, a title and a subtitle**, all landing together over one continuous take, with simple TikTok-style captions. |
 
 ## Five new photographic styles
