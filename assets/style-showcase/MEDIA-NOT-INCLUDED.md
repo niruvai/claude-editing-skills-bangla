@@ -1,0 +1,1 @@
+The sample photographs and footage of the original repository are not included in this edition because they are not covered by its MIT license (see README.md and sources.json for the original credits). Supply your own images and footage as overrides in the spec for the five photographic styles.

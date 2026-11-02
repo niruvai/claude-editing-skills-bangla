@@ -1,0 +1,15 @@
+{
+  "name": "claude-editing-skills-bangla",
+  "owner": {
+    "name": "niruvai",
+    "url": "https://github.com/niruvai"
+  },
+  "description": "Bangla edition of Artem Novitckii's video editing skills for Claude Code.",
+  "plugins": [
+    {
+      "name": "editing-skills",
+      "source": "./",
+      "description": "Eleven local video editing skills with Bangla voice, captions and fonts support."
+    }
+  ]
+}

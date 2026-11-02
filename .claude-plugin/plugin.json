@@ -1,0 +1,22 @@
+{
+  "name": "editing-skills",
+  "version": "1.1.0-bn.1",
+  "description": "Bangla edition: Eleven video editing skills for Claude Code: six talking-head workflows and five photographic styles including Shape Shift, Picture Stack, Scene Switch, Visual Notes and Orbit Reel.",
+  "author": {
+    "name": "niruvai (Bangla edition), based on Artem Novitckii",
+    "url": "https://github.com/niruvai"
+  },
+  "homepage": "https://github.com/niruvai/claude-editing-skills-bangla",
+  "repository": "https://github.com/niruvai/claude-editing-skills-bangla",
+  "license": "MIT",
+  "keywords": [
+    "video",
+    "reels",
+    "editing",
+    "hyperframes",
+    "instagram",
+    "captions",
+    "bangla",
+    "bengali"
+  ]
+}
