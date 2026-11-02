@@ -42,6 +42,45 @@ def call(client, path, language):
     return r.model_dump() if hasattr(r, 'model_dump') else dict(r)
 
 
+GAP = 3.0        # a hole this long between words is checked for missed speech
+SPEECH = 1.5     # re-transcribe it if at least this many seconds of it are not silent
+
+
+def voiced(video, start, end):
+    """seconds of non-silent audio between start and end (ffmpeg silencedetect)"""
+    r = subprocess.run(['ffmpeg', '-v', 'info', '-hide_banner', '-nostats', '-ss', f'{start:.3f}', '-i', str(video),
+                        '-t', f'{end - start:.3f}', '-vn', '-af', 'silencedetect=noise=-35dB:d=0.4', '-f', 'null', '-'],
+                       capture_output=True, text=True)
+    silent = sum(float(x.split('silence_duration:')[1].split()[0]) for x in r.stderr.splitlines() if 'silence_duration:' in x)
+    return max(0.0, (end - start) - silent)
+
+
+def fill_gaps(client, video, words, segments, total, language, tmp):
+    """Whisper sometimes skips 10-30 s of speech (often after a pause or with music under it).
+    Find long holes that still have voice in them and transcribe each hole on its own."""
+    edges = [0.0] + [x for w in words for x in (w['start'], w['end'])] + [total]
+    holes = [(edges[i], edges[i + 1]) for i in range(0, len(edges) - 1, 2) if edges[i + 1] - edges[i] >= GAP]
+    added = 0
+    for a, b in holes:
+        if voiced(video, a, b) < SPEECH:
+            continue
+        s0, s1 = max(0.0, a - 0.2), min(total, b + 0.2)
+        f = Path(tmp) / f'gap{int(s0 * 100)}.flac'
+        audio(video, f, s0, s1 - s0)
+        r = call(client, f, language)
+        new = [dict(word=w['word'], start=round(w['start'] + s0, 3), end=round(w['end'] + s0, 3))
+               for w in r.get('words') or [] if a - 0.05 <= w['start'] + s0 < b]
+        if new:
+            print(f'  filled a skipped stretch {a:.1f}-{b:.1f} s ({len(new)} words)', flush=True)
+            words.extend(new)
+            segments.extend(dict(start=round(x['start'] + s0, 3), end=round(x['end'] + s0, 3), text=x['text'])
+                            for x in r.get('segments') or [] if a - 0.05 <= x['start'] + s0 < b)
+            added += len(new)
+    words.sort(key=lambda w: w['start'])
+    segments.sort(key=lambda x: x['start'])
+    return added
+
+
 def transcribe(video, out=None, language=None):
     from groq import Groq
     if not os.environ.get('GROQ_API_KEY'):
@@ -64,6 +103,8 @@ def transcribe(video, out=None, language=None):
                 segments.append(dict(start=round(s['start'] + t, 3), end=round(s['end'] + t, 3), text=s['text']))
             text.append(r.get('text', ''))
             t += dur
+        if fill_gaps(client, video, words, segments, total, language, tmp):
+            text = [' '.join(w['word'].strip() for w in words)]
     data = dict(text=' '.join(x.strip() for x in text), segments=segments, words=words, duration=total, model=MODEL)
     out.write_text(json.dumps(data, indent=1, ensure_ascii=False))
     return out
