@@ -22,6 +22,19 @@ cd ~/claude-editing-skills-bangla && ./install.sh --cutout
 
 Groq-এর ফ্রি প্ল্যানে দিনে প্রায় ৮ ঘণ্টা অডিও ট্রান্সক্রাইব করা যায়। Whisper বাংলায় মাঝে মাঝে বানান ভুল করে; ক্লিপের পাশের `.transcript.json` এ শব্দ ঠিক করে আবার রেন্ডার করলে সেটাই ব্যবহার হবে।
 
+### Claude অ্যাপ (Code ট্যাব) থেকে চালানো, কম্পিউটার ছাড়াই
+
+1. [claude.ai/code](https://claude.ai/code) খুলুন → environment selector → **Add cloud environment** (বা আগেরটার settings)।
+2. **Network access** → **Custom** → Allowed domains-এ লিখুন `api.groq.com`, আর **Also include default list of common package managers** টিক দিন।
+3. **Environment variables**-এ লিখুন:
+   ```
+   GROQ_API_KEY=gsk_...
+   REEL_LANGUAGE=bn
+   ```
+4. Code ট্যাবে এই রিপো (`niruvai/claude-editing-skills-bangla`) আর ওই environment বেছে নিন, ভিডিও অ্যাটাচ করে লিখুন `/trial-reels` বা `/explainer`।
+
+প্রথমবার সেটআপে প্রায় ১ মিনিট, প্রতিটা রিল রেন্ডারে ক্লাউডে ১–২ মিনিট লাগে।
+
 > **নোট:** মূল রিপোর ছবি ও স্যাম্পল ভিডিও (তৃতীয় পক্ষের ছবি ও Artem-এর নিজের ক্লিপ) MIT লাইসেন্সের আওতায় নয়, তাই এখানে রাখা হয়নি। পাঁচটা ফটোগ্রাফিক স্টাইলে (`/shape-shift` ইত্যাদি) নিজের ছবি/ফুটেজ দিন।
 
 ---

@@ -29,6 +29,15 @@ HYPERFRAMES = 'hyperframes@0.8.34'
 SAFE_TOP, SAFE_BOTTOM, SAFE_SIDE = 220, 1500, 100      # Instagram covers the top ~220 px and the bottom ~420 px
 FRAME_VF = f'scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1'
 
+# Cloud sessions (Claude app "Code" tab) can't download HyperFrames' own Chrome; use a Chromium that is already there
+if not os.environ.get('HYPERFRAMES_BROWSER_PATH'):
+    for _pat in ('/opt/pw-browsers/*/chrome-linux*/chrome', os.path.expanduser('~/.cache/ms-playwright/chromium-*/chrome-linux*/chrome'),
+                 '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'):
+        _hits = sorted(glob.glob(_pat))
+        if _hits and sys.platform.startswith('linux'):
+            os.environ['HYPERFRAMES_BROWSER_PATH'] = _hits[-1]
+            break
+
 BASE_CSS = """
 @font-face{font-family:'Inter';font-weight:100 900;font-style:normal;src:url(fonts/NotoSansBengali-var.woff2) format('woff2');unicode-range:U+0964-0965,U+0980-09FE,U+200C-200D,U+25CC}
 @font-face{font-family:'Inter';font-weight:100 900;font-style:italic;src:url(fonts/NotoSansBengali-var.woff2) format('woff2');unicode-range:U+0964-0965,U+0980-09FE,U+200C-200D,U+25CC}

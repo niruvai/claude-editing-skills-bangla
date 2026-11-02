@@ -6,7 +6,9 @@ KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 say() { printf '\033[1m%s\033[0m\n' "$*"; }
 
 command -v ffmpeg >/dev/null || { echo "ffmpeg is missing. Mac: brew install ffmpeg"; exit 1; }
-ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libvpx-vp9 || echo "warning: this ffmpeg has no libvpx-vp9, so cutouts (behind-the-person, explainer) will fail"
+# (grep -q under pipefail would SIGPIPE ffmpeg and warn falsely, so read the list first)
+ENC=$(ffmpeg -hide_banner -encoders 2>/dev/null || true)
+grep -q libvpx-vp9 <<<"$ENC" || echo "warning: this ffmpeg has no libvpx-vp9, so cutouts (behind-the-person, explainer) will fail"
 command -v npx >/dev/null || { echo "Node.js is missing (HyperFrames renders with it). Mac: brew install node"; exit 1; }
 # onnxruntime (the cutout) ships wheels for Python 3.10-3.13 only, so prefer one of those over a newer python3
 PY=""
@@ -36,7 +38,9 @@ fi
 mkdir -p "$KIT/vendor"
 if [ ! -s "$KIT/vendor/gsap.min.js" ]; then
   say "fetching GSAP"
-  curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js -o "$KIT/vendor/gsap.min.js"
+  # cdnjs first; cloud sessions (Claude app "Code" tab) often only reach the npm registry, so fall back to it
+  curl -fsSL -m 30 https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js -o "$KIT/vendor/gsap.min.js" 2>/dev/null || {
+    t=$(mktemp -d); (cd "$t" && npm pack -q gsap@3.12.5 >/dev/null && tar xzf gsap-3.12.5.tgz) && cp "$t/package/dist/gsap.min.js" "$KIT/vendor/gsap.min.js"; rm -rf "$t"; }
 fi
 
 say "warming up HyperFrames (first run downloads it)"
